@@ -13,7 +13,10 @@
  * limitations under the License.
  */
 #include "SvgGraphic.h"
+#include <native_drawing/drawing_bitmap.h>
+#include <native_drawing/drawing_image.h>
 #include <native_drawing/drawing_path_effect.h>
+#include <native_drawing/drawing_sampling_options.h>
 #include <native_drawing/drawing_shader_effect.h>
 #include <native_drawing/drawing_point.h>
 #include <native_drawing/drawing_matrix.h>
@@ -119,6 +122,9 @@ bool SvgGraphic::UpdateFillStyle(bool antiAlias) {
     if (fillState_.GetGradient()) {
         LOG(INFO) << "[SVGGraphic] SetGradientStyle";
         SetGradientStyle(curOpacity);
+    } else if (fillState_.GetPattern()) {
+        LOG(INFO) << "[SVGGraphic] SetPatternStyle";
+        SetPatternStyle();
     } else {
         //         auto fillColor = (color) ? *color : fillState_.GetColor();
         //         fillBrush_.SetColor(fillColor.BlendOpacity(curOpacity).GetValue());
@@ -212,6 +218,45 @@ void SvgGraphic::SetGradientStyle(double opacity) {
                             // static_cast<RSTileMode>(gradient->GetSpreadMethod()), &matrix));
         // }
     }
+void SvgGraphic::SetPatternStyle() {
+    LOG(INFO) << "[SVGGraphic pattern] SetPatternStyle";
+    const auto &fillState_ = attributes_.fillState;
+    auto pattern = fillState_.GetPattern();
+    CHECK_NULL_VOID(pattern);
+
+    OH_Drawing_Canvas *canvas = OH_Drawing_CanvasCreate();
+    int w = 128;
+    int h = 128;
+    OH_Drawing_Bitmap *bitmap = OH_Drawing_BitmapCreate();
+    OH_Drawing_BitmapFormat format = {COLOR_FORMAT_RGBA_8888, ALPHA_FORMAT_OPAQUE};
+    OH_Drawing_BitmapBuild(bitmap, w, h, &format);
+    OH_Drawing_CanvasBind(canvas, bitmap);
+    
+    
+    // 根据子节点创建shader
+    uint32_t colors[4] = {0xFF00FFFF, 0xFFFF00FF, 0xFFFFFF00, 0xFF00FFFF};
+    float pos[4] = {0.0f, 0.33f, 0.66f, 1.0f};
+    OH_Drawing_Point *p = OH_Drawing_PointCreate(20, 20);
+    OH_Drawing_ShaderEffect *shader =
+        OH_Drawing_ShaderEffectCreateSweepGradient(p, colors, pos, 4, OH_Drawing_TileMode::REPEAT);
+    OH_Drawing_Brush *brush = OH_Drawing_BrushCreate();
+    OH_Drawing_BrushSetShaderEffect(brush, shader);
+    OH_Drawing_CanvasDrawBackground(canvas, brush);
+    
+    
+
+    // 固定的
+    OH_Drawing_Image *image = OH_Drawing_ImageCreate();
+    OH_Drawing_ImageBuildFromBitmap(image, bitmap);
+
+    OH_Drawing_SamplingOptions *opt = OH_Drawing_SamplingOptionsCreate(OH_Drawing_FilterMode::FILTER_MODE_LINEAR,
+                                                                       OH_Drawing_MipmapMode::MIPMAP_MODE_NONE);
+    OH_Drawing_ShaderEffect *imageShader = OH_Drawing_ShaderEffectCreateImageShader(
+        image, OH_Drawing_TileMode::REPEAT, OH_Drawing_TileMode::REPEAT, opt, nullptr);
+    OH_Drawing_BrushReset(fillBrush_);
+    OH_Drawing_BrushSetShaderEffect(fillBrush_, imageShader);
+    
+    
 }
 
 bool SvgGraphic::UpdateStrokeStyle(bool antiAlias) {
