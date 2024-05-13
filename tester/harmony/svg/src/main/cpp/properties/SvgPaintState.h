@@ -7,6 +7,7 @@
 // #include "frameworks/core/components/common/properties/decoration.h"
 // #include "frameworks/core/components/common/properties/paint_state.h"
 // #include "frameworks/core/components/common/properties/text_style.h"
+#include "Decoration.h"
 #include "properties/Color.h"
 #include "properties/PaintState.h"
 #include "properties/Decoration.h"
@@ -53,11 +54,20 @@ public:
 
     std::optional<Gradient> &GetGradient() { return gradient_; }
 
+    std::optional<Pattern> &GetPattern() { return pattern_; }
+
     const std::optional<Gradient> &GetGradient() const { return gradient_; }
+
+    const std::optional<Pattern> &GetPattern() const { return pattern_; }
 
     void SetGradient(const Gradient &gradient, bool isSelf) {
         gradient_ = std::make_optional(gradient);
         hasGradient_ = isSelf;
+    }
+
+    void SetPattern(const Pattern &pattern, bool isSelf) {
+        pattern_ = std::make_optional(pattern);
+        hasPattern_ = isSelf;
     }
 
     void SetOpacity(double opacity, bool isSelf) {
@@ -112,10 +122,12 @@ protected:
     double opacity_ = double(1.0);
     FillState::FillRule fillRule_;
     std::optional<Gradient> gradient_;
+    std::optional<Pattern> pattern_;
     bool hasColor_ = false;
     bool hasOpacity_ = false;
     bool hasFillRule_ = false;
     bool hasGradient_ = false;
+    bool hasPattern_ = false;
     std::string href_;
 };
 

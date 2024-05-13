@@ -15,6 +15,8 @@
  */
 
 #pragma once
+#include "Rect.h"
+#include <native_drawing/drawing_types.h>
 #ifndef FOUNDATION_ACE_FRAMEWORKS_CORE_COMPONENTS_BASE_PROPERTIES_DECORATION_H
 #define FOUNDATION_ACE_FRAMEWORKS_CORE_COMPONENTS_BASE_PROPERTIES_DECORATION_H
 
@@ -390,6 +392,41 @@ private:
     std::vector<facebook::react::Float> gradientTransform_;
     LinearGradientInfo linearGradientInfo_;
     RadialGradientInfo radialGradientInfo_;
+};
+
+
+class Pattern final {
+public:
+    void setPatternX(Dimension x) { x_ = x; }
+
+    void setPatternY(Dimension y) { y_ = y; }
+
+    void setHeight(Dimension height) { height_ = height; }
+
+    void setWidth(Dimension width) { width_ = width; }
+
+    void setPatternUnits(int patternUnits) { patternUnits_ = patternUnits; }
+
+    void setPatternContentUnits(int patternContentUnits) { patternContentUnits_ = patternContentUnits; }
+
+    void setTransform(int patternTransform) { patternTransform_ = patternTransform; }
+
+    void setViewBox(Rect viewBox) { viewBox_ = viewBox; }
+
+    void setImage(OH_Drawing_Image* image) { image_ = image; }
+
+    OH_Drawing_Image* getImage() { return image_ ; }
+
+private:
+    Dimension x_; // x-axis default value
+    Dimension y_; // y-axis default value
+    Dimension width_; // pattern area width default value
+    Dimension height_; // pattern area height default value
+    int patternUnits_;
+    int patternContentUnits_;
+    std::string patternTransform_;
+    Rect viewBox_;
+    OH_Drawing_Image* image_;
 };
 
 } // namespace rnoh

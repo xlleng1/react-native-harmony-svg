@@ -98,6 +98,7 @@ protected:
     bool UpdateStrokeStyle(bool antiAlias = true);
     void UpdateGradient();
     void SetGradientStyle(double opacity);
+    void SetPatternStyle();
     void UpdateLineDash();
 
     std::vector<PathElement> elements_;
